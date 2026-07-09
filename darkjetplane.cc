@@ -73,6 +73,8 @@ int main(int argc, char *argv[])
   if (optind < argc)
     cmndfile = argv[optind];
   pythia.readFile(cmndfile);
+  int numberCount = std::max(1, nEvents / 100);
+  pythia.readString("Next:numberCount = " + std::to_string(numberCount));
   std::ofstream out(outfile);
 
   // If Pythia fails to initialize, exit with error.
@@ -101,6 +103,12 @@ int main(int argc, char *argv[])
 
   std::ofstream lundOut(outfile);
   lundOut << "# event jet log1overDelta logkt z Delta kt\n";
+
+  // print all settings
+  pythia.settings.listAll();
+  // pythia.particleData.listAll();
+  pythia.particleData.list(55);
+  pythia.particleData.list(52);
 
   // Begin event loop. Generate event. Skip if error.
   for (int iEvent = 0; iEvent < nEvents; ++iEvent) {
