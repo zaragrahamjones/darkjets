@@ -1,0 +1,99 @@
+! hiddenvalley.cmnd
+! ------------------------------------------------------------
+! pp -> dark quarks -> dark shower -> visible dark hadrons
+! Pythia8 HiddenValley example card
+! ------------------------------------------------------------
+
+! Settings
+Beams:idA = 2212
+Beams:idB = 2212
+Beams:eCM = 13600.
+Next:numberCount = 100
+Init:showChangedSettings = on      ! list changed settings
+Init:showChangedParticleData = off ! list changed particle data
+Next:numberShowInfo = 0            ! print event information n times
+Next:numberShowProcess = 1         ! print process record n times
+Next:numberShowEvent = 0           ! print event record n times
+
+! Standard QCD/QED settings
+PartonLevel:ISR = on
+PartonLevel:FSR = on
+PartonLevel:MPI = on
+HadronLevel:Hadronize = on
+! Switch off unwanted parts for HV-only simulation.
+! Only FSR:
+# PartonLevel:ISR = off
+# PartonLevel:MPI = off
+# HadronLevel:all = off
+! Only HV in FSR:
+# TimeShower:QCDshower = off
+# TimeShower:QEDshowerByQ = off
+# TimeShower:QEDshowerByL = off
+# TimeShower:QEDshowerByGamma = off
+
+! Hidden Valley PS
+Hiddenvalley:FSR = on
+HiddenValley:setLambda = on
+Hiddenvalley:Lambda = 4.
+HiddenValley:pTminFSR = 6.
+
+! Hidden Valley fragmentation process qv -> HV-mesons
+Hiddenvalley:alphaOrder = 1 ! turn off for no HV QCD (i.e. QED), turn on for HV QCD
+HiddenValley:Ngauge = 3     ! set=1 for no HV QCD (i.e. QED), set=3 for HV QCD
+HiddenValley:nFlav = 3
+HiddenValley:fragment = on
+
+! Broken QED:
+4900022:mayDecay = off      ! turn off for stable dark photon
+# 4900022:m0 = 1.           ! turn on for broken QED, with dark photon mass 1 GeV
+
+! Revert to old 
+# TimeShower:recoilStrategyRF = 1
+
+# ! --- Hidden Valley production
+# ! Option A: internal production of dark quark pairs
+# HiddenValley:qqbar2DvDvbar = on
+# HiddenValley:gg2DvDvbar = on
+# HiddenValley:alphaOrder = 1
+# 
+# ! --- Hidden Valley shower and hadronization
+# HiddenValley:FSR = on
+# HiddenValley:fragment = on
+# HiddenValley:Ngauge = 3
+# HiddenValley:nFlav = 1
+# HiddenValley:spinFv = 0
+# 
+# ! Dark confinement scale
+# HiddenValley:Lambda = 10.0
+# 
+# ! Shower cutoff; should be below/around dark hadron scale but not too small
+# HiddenValley:pTminFSR = 1.0
+# 
+# ! --- Dark quark mass
+# 4900101:m0 = 20.0
+# 
+# ! --- Dark meson masses
+# ! pi_v
+# 4900111:m0 = 10.0
+# ! rho_v
+# 4900113:m0 = 25.0
+# 
+# ! --- Prompt visible decays
+# 4900111:mayDecay = on
+# 4900111:tau0 = 0.0
+# 4900111:oneChannel = 1 1.0 91 1 -1
+# 
+# 4900113:mayDecay = on
+# 4900113:tau0 = 0.0
+# 4900113:oneChannel = 1 1.0 91 1 -1
+
+# I think this should be it. I would add a pt cut on the jet > 1 TeV. Also 
+# Let's just take the first benchmark point from the snowmass whitepaper:
+# N_cD=3
+# N_fD=3
+# Lambda_D=5
+# mpid=3
+# mrhoD=12.55
+# probVec=0.7
+# mZ' = 1TeV
+# separateFlav=off

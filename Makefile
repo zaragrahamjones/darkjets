@@ -149,7 +149,7 @@ main144: $(PYTHIA) $$@.cc $(if $(filter true,$(ROOT_USE)),$$@Dct.so)
 	 $(if $(filter true,$(ROOT_USE)),$@Dct.so $(ROOT_OPTS))
 
 # FASTJET3.
-main161 main212 main213 main507 darkjetplane: $(PYTHIA) $$@.cc
+main161 main212 main213 main507 darkinvisible hiddenvalley: $(PYTHIA) $$@.cc
 ifeq ($(FASTJET3_USE),true)
 	$(CXX) $@.cc -o $@ -w $(CXX_COMMON) $(FASTJET3_OPTS)
 else

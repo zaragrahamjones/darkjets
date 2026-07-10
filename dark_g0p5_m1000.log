@@ -8,7 +8,7 @@
  |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.315      |  | 
  |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 27 May 2025  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 09 Jul 2026 at 15:41:42    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 10 Jul 2026 at 10:35:32    |  | 
  |  |                                                                              |  | 
  |  |   Program documentation and an archive of historic versions is found on:     |  | 
  |  |                                                                              |  | 
@@ -54,8 +54,8 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | f fbar -> Zp -> XX                            6001 |   1.776e-11 |
- | q qbar -> Zp g -> XX + jet                    6002 |   4.106e-09 |
+ | f fbar -> Zp -> XX                            6001 |   1.278e-09 |
+ | q qbar -> Zp g -> XX + jet                    6002 |   1.049e-10 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
 
@@ -67,13 +67,14 @@
  | DM:ffbar2Zp2XX                                |                       on |          off                         | 
  | DM:ffbar2Zp2XXj                               |                       on |          off                         | 
  | Init:showChangedParticleData                  |                      off |           on                         | 
- | Init:showOneParticleData                      |                       55 |            0           0             | 
- | Next:numberCount                              |                        1 |         1000           0             | 
+ | Init:showOneParticleData                      |                       52 |            0           0             | 
+ | Next:numberCount                              |                      100 |         1000           0             | 
  | Next:numberShowEvent                          |                        0 |            1           0             | 
  | Next:numberShowInfo                           |                        0 |            1           0             | 
  | PartonLevel:MPI                               |                      off |           on                         | 
  | StringZ:useOldAExtra                          |                       on |          off                         | 
  | Zp:coupH                                      |                  0.50000 |      0.10000                         | 
+ | Zp:gZp                                        |                  0.50000 |      0.10000                         | 
  | Zp:vd                                         |                  0.50000 |      1.00000                         | 
  | Zp:vu                                         |                  0.50000 |      1.00000                         | 
  |                                                                                                                 | 
@@ -84,31 +85,7 @@
       id   name            antiName         spn chg col      m0        mWidth      mMin       mMax       tau0    res dec ext vis wid
              no onMode   bRatio   meMode     products 
 
-      55  DMmed(s=1)       DMmedbar(s=1)      3   0   0  1.000e+03  2.254e+00  5.000e+01  0.000e+00  8.75327e-14   1   1   0   0   0
-              0     0   0.0294166    0        1       -1 
-              1     0   0.0294166    0        2       -2 
-              2     0   0.0294166    0        3       -3 
-              3     0   0.0294166    0        4       -4 
-              4     0   0.0294166    0        5       -5 
-              5     0   0.0292517    0        6       -6 
-              6     0   0.1176665    0       11      -11 
-              7     0   0.1176665    0       12      -12 
-              8     0   0.1176665    0       13      -13 
-              9     0   0.1176665    0       14      -14 
-             10     0   0.1176665    0       15      -15 
-             11     0   0.1176665    0       16      -16 
-             12     0   0.0000000    0       21       21 
-             13     0   0.0000000    0       22       22 
-             14     0   0.0000000    0       22       23 
-             15     0   0.0000000    0       23       23 
-             16     0   0.0000000    0       24      -24 
-             17     0   0.0000000    0       25       25 
-             18     0   0.0000000    0       51      -51 
-             19     0   0.0000000    0       51       51 
-             20     1   0.1176664    0       52      -52 
-             21     1   0.0000000    0       52       52 
-             22     0   0.0000000    0       53      -53 
-             23     0   0.0000000    0       53       53 
+      52  DM(s=1/2)        DMbar(s=1/2)       2   0   0   10.00000    0.00000   10.00000   10.00000  0.00000e+00   1   0   0   0   0
 
  --------  End PYTHIA Particle Data Table  -----------------------------------------------------------------------------------------
 
@@ -1513,7 +1490,7 @@
  | Init:showChangedResonanceData                 |                      off |          off                         | 
  | Init:showChangedSettings                      |                       on |           on                         | 
  | Init:showMultipartonInteractions              |                       on |           on                         | 
- | Init:showOneParticleData                      |                       55 |            0           0             | 
+ | Init:showOneParticleData                      |                       52 |            0           0             | 
  | Init:showProcesses                            |                       on |           on                         | 
  | JetMatching:clFact                            |                  1.00000 |      1.00000                         | 
  | JetMatching:coneMatchHeavy                    |                  1.00000 |      1.00000     0.10000             | 
@@ -1724,7 +1701,7 @@
  | NewGaugeBoson:ffbar2gmZZprime                 |                      off |          off                         | 
  | NewGaugeBoson:ffbar2R0                        |                      off |          off                         | 
  | NewGaugeBoson:ffbar2Wprime                    |                      off |          off                         | 
- | Next:numberCount                              |                        1 |         1000           0             | 
+ | Next:numberCount                              |                      100 |         1000           0             | 
  | Next:numberShowEvent                          |                        0 |            1           0             | 
  | Next:numberShowInfo                           |                        0 |            1           0             | 
  | Next:numberShowLHA                            |                        1 |            1           0             | 
@@ -2541,7 +2518,7 @@
  | Zp:coupH                                      |                  0.50000 |      0.10000                         | 
  | Zp:decayMode                                  |                        0 |            0           0           3 | 
  | Zp:epsilon                                    |                  0.10000 |      0.10000                         | 
- | Zp:gZp                                        |                  0.10000 |      0.10000                         | 
+ | Zp:gZp                                        |                  0.50000 |      0.10000                         | 
  | Zp:kineticMixing                              |                      off |          off                         | 
  | Zp:vd                                         |                  0.50000 |      1.00000                         | 
  | Zp:vl                                         |                  1.00000 |      1.00000                         | 
@@ -2593,7 +2570,7 @@
       id   name            antiName         spn chg col      m0        mWidth      mMin       mMax       tau0    res dec ext vis wid
              no onMode   bRatio   meMode     products 
 
-      55  DMmed(s=1)       DMmedbar(s=1)      3   0   0  1.000e+03  2.254e+00  5.000e+01  0.000e+00  8.75327e-14   1   1   0   0   0
+      55  DMmed(s=1)       DMmedbar(s=1)      3   0   0  1.000e+03  5.636e+01  5.000e+01  0.000e+00  3.50131e-15   1   1   0   0   0
               0     0   0.0294166    0        1       -1 
               1     0   0.0294166    0        2       -2 
               2     0   0.0294166    0        3       -3 
@@ -2638,13 +2615,12 @@
      0         90  (system)           -11     0     0     0     0     0     0      0.000      0.000      0.000  13000.000  13000.000
      1       2212  (p+)               -12     0     0     3     0     0     0      0.000      0.000   6500.000   6500.000      0.938
      2       2212  (p+)               -12     0     0     4     0     0     0      0.000      0.000  -6500.000   6500.000      0.938
-     3         -2  (ubar)             -21     1     0     5     6     0   102      0.000      0.000    388.186    388.186      0.000
-     4          2  (u)                -21     2     0     5     6   101     0      0.000      0.000   -647.946    647.946      0.000
-     5         55  (DMmed(s=1))       -22     3     4     7     8     0     0     -1.715      0.994   -260.865   1033.862   1000.408
-     6         21  g                   23     3     4     0     0   101   102      1.715     -0.994      1.105      2.270      0.000
-     7         52  DM(s=1/2)           23     5     0     0     0     0     0   -238.414   -324.688   -436.893    594.339     10.000
-     8        -52  DMbar(s=1/2)        23     5     0     0     0     0     0    236.698    325.682    176.028    439.523     10.000
-                                   Charge sum:  0.000           Momentum sum:      0.000     -0.000   -259.760   1036.132   1003.042
+     3         -2  (ubar)             -21     1     0     5     0     0   101      0.000      0.000     15.236     15.236      0.000
+     4          2  (u)                -21     2     0     5     0   101     0      0.000      0.000  -1863.320   1863.320      0.000
+     5         55  (DMmed(s=1))       -22     3     4     6     7     0     0      0.000      0.000  -1848.084   1878.556    336.983
+     6         52  DM(s=1/2)           23     5     0     0     0     0     0    -64.395    -71.607  -1692.756   1695.523     10.000
+     7        -52  DMbar(s=1/2)        23     5     0     0     0     0     0     64.395     71.607   -155.327    183.033     10.000
+                                   Charge sum:  0.000           Momentum sum:      0.000      0.000  -1848.084   1878.556    336.983
 
  --------  End PYTHIA Event Listing  -----------------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------
@@ -2661,203 +2637,24 @@
 # and 3rd party plugin jet algorithms. See COPYING file for details.
 #--------------------------------------------------------------------------
 
- Pythia::next(): 1 events have been generated 
+ Pythia::next(): 100 events have been generated 
 
- Pythia::next(): 2 events have been generated 
+ Pythia::next(): 200 events have been generated 
+ PYTHIA Warning in SimpleSpaceShower::pT2nextQCD: weight above unity
 
- Pythia::next(): 3 events have been generated 
+ Pythia::next(): 300 events have been generated 
 
- Pythia::next(): 4 events have been generated 
+ Pythia::next(): 400 events have been generated 
 
- Pythia::next(): 5 events have been generated 
+ Pythia::next(): 500 events have been generated 
 
- Pythia::next(): 6 events have been generated 
+ Pythia::next(): 600 events have been generated 
 
- Pythia::next(): 7 events have been generated 
+ Pythia::next(): 700 events have been generated 
 
- Pythia::next(): 8 events have been generated 
+ Pythia::next(): 800 events have been generated 
 
- Pythia::next(): 9 events have been generated 
-
- Pythia::next(): 10 events have been generated 
-
- Pythia::next(): 11 events have been generated 
-
- Pythia::next(): 12 events have been generated 
-
- Pythia::next(): 13 events have been generated 
-
- Pythia::next(): 14 events have been generated 
-
- Pythia::next(): 15 events have been generated 
-
- Pythia::next(): 16 events have been generated 
-
- Pythia::next(): 17 events have been generated 
-
- Pythia::next(): 18 events have been generated 
-
- Pythia::next(): 19 events have been generated 
-
- Pythia::next(): 20 events have been generated 
-
- Pythia::next(): 21 events have been generated 
-
- Pythia::next(): 22 events have been generated 
-
- Pythia::next(): 23 events have been generated 
-
- Pythia::next(): 24 events have been generated 
-
- Pythia::next(): 25 events have been generated 
-
- Pythia::next(): 26 events have been generated 
-
- Pythia::next(): 27 events have been generated 
-
- Pythia::next(): 28 events have been generated 
-
- Pythia::next(): 29 events have been generated 
-
- Pythia::next(): 30 events have been generated 
-
- Pythia::next(): 31 events have been generated 
-
- Pythia::next(): 32 events have been generated 
-
- Pythia::next(): 33 events have been generated 
-
- Pythia::next(): 34 events have been generated 
-
- Pythia::next(): 35 events have been generated 
-
- Pythia::next(): 36 events have been generated 
-
- Pythia::next(): 37 events have been generated 
-
- Pythia::next(): 38 events have been generated 
-
- Pythia::next(): 39 events have been generated 
-
- Pythia::next(): 40 events have been generated 
-
- Pythia::next(): 41 events have been generated 
-
- Pythia::next(): 42 events have been generated 
-
- Pythia::next(): 43 events have been generated 
-
- Pythia::next(): 44 events have been generated 
-
- Pythia::next(): 45 events have been generated 
-
- Pythia::next(): 46 events have been generated 
-
- Pythia::next(): 47 events have been generated 
-
- Pythia::next(): 48 events have been generated 
-
- Pythia::next(): 49 events have been generated 
-
- Pythia::next(): 50 events have been generated 
-
- Pythia::next(): 51 events have been generated 
-
- Pythia::next(): 52 events have been generated 
-
- Pythia::next(): 53 events have been generated 
-
- Pythia::next(): 54 events have been generated 
-
- Pythia::next(): 55 events have been generated 
-
- Pythia::next(): 56 events have been generated 
-
- Pythia::next(): 57 events have been generated 
-
- Pythia::next(): 58 events have been generated 
-
- Pythia::next(): 59 events have been generated 
-
- Pythia::next(): 60 events have been generated 
-
- Pythia::next(): 61 events have been generated 
-
- Pythia::next(): 62 events have been generated 
-
- Pythia::next(): 63 events have been generated 
-
- Pythia::next(): 64 events have been generated 
-
- Pythia::next(): 65 events have been generated 
-
- Pythia::next(): 66 events have been generated 
-
- Pythia::next(): 67 events have been generated 
-
- Pythia::next(): 68 events have been generated 
-
- Pythia::next(): 69 events have been generated 
-
- Pythia::next(): 70 events have been generated 
-
- Pythia::next(): 71 events have been generated 
-
- Pythia::next(): 72 events have been generated 
-
- Pythia::next(): 73 events have been generated 
-
- Pythia::next(): 74 events have been generated 
-
- Pythia::next(): 75 events have been generated 
-
- Pythia::next(): 76 events have been generated 
-
- Pythia::next(): 77 events have been generated 
-
- Pythia::next(): 78 events have been generated 
-
- Pythia::next(): 79 events have been generated 
-
- Pythia::next(): 80 events have been generated 
-
- Pythia::next(): 81 events have been generated 
-
- Pythia::next(): 82 events have been generated 
-
- Pythia::next(): 83 events have been generated 
-
- Pythia::next(): 84 events have been generated 
-
- Pythia::next(): 85 events have been generated 
-
- Pythia::next(): 86 events have been generated 
-
- Pythia::next(): 87 events have been generated 
-
- Pythia::next(): 88 events have been generated 
-
- Pythia::next(): 89 events have been generated 
-
- Pythia::next(): 90 events have been generated 
-
- Pythia::next(): 91 events have been generated 
-
- Pythia::next(): 92 events have been generated 
-
- Pythia::next(): 93 events have been generated 
-
- Pythia::next(): 94 events have been generated 
-
- Pythia::next(): 95 events have been generated 
-
- Pythia::next(): 96 events have been generated 
-
- Pythia::next(): 97 events have been generated 
-
- Pythia::next(): 98 events have been generated 
-
- Pythia::next(): 99 events have been generated 
+ Pythia::next(): 900 events have been generated 
 
  *-------  PYTHIA Event and Cross Section Statistics  -------------------------------------------------------------*
  |                                                                                                                 |
@@ -2866,10 +2663,10 @@
  |                                                    |                                   |                        |
  |-----------------------------------------------------------------------------------------------------------------|
  |                                                    |                                   |                        |
- | f fbar -> Zp -> XX                            6001 |          39         15         15 |   6.871e-12  1.102e-12 |
- | q qbar -> Zp g -> XX + jet                    6002 |        9748         85         85 |   4.155e-11  1.624e-12 |
+ | f fbar -> Zp -> XX                            6001 |        3000        997        997 |   4.234e-10  6.535e-12 |
+ | q qbar -> Zp g -> XX + jet                    6002 |         264          3          3 |   1.092e-12  2.114e-13 |
  |                                                    |                                   |                        |
- | sum                                                |        9787        100        100 |   4.842e-11  1.963e-12 |
+ | sum                                                |        3264       1000       1000 |   4.245e-10  6.538e-12 |
  |                                                                                                                 |
  *-------  End PYTHIA Event and Cross Section Statistics ----------------------------------------------------------*
 
@@ -2877,49 +2674,52 @@
  |                                                                                                                 | 
  |  times   message                                                                                                | 
  |                                                                                                                 | 
- |      0   no errors or warnings to report                                                                        | 
+ |      4   Warning in SimpleSpaceShower::pT2nextQCD: weight above unity                                           | 
  |                                                                                                                 | 
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2026-07-09 15:41       dN/dpTj
+  2026-07-10 10:35       dN/dpTj
 
-        3.00*10^ 0                                                                          X                           
-        2.88*10^ 0                                                                          X                           
-        2.76*10^ 0                                                                          X                           
-        2.64*10^ 0                                                                          X                           
-        2.52*10^ 0                                                                          X                           
-        2.40*10^ 0                                                                          X                           
-        2.28*10^ 0                                                                          X                           
-        2.16*10^ 0                                                                          X                           
-        2.04*10^ 0                           7        7   7 7    7     7                    X      7                    
-        1.92*10^ 0                           X        X   X X    X     X                    X      X                    
-        1.80*10^ 0                           X        X   X X    X     X                    X      X                    
-        1.68*10^ 0                           X        X   X X    X     X                    X      X                    
-        1.56*10^ 0                           X        X   X X    X     X                    X      X                    
-        1.44*10^ 0                           X        X   X X    X     X                    X      X                    
-        1.32*10^ 0                           X        X   X X    X     X                    X      X                    
-        1.20*10^ 0                           X        X   X X    X     X                    X      X                    
-        1.08*10^ 0                      3 3  X   3  3 X 33X X3  3X 3 33X       33 3 3      3X3 3 3 X 33    3  3    3    
-        0.96*10^ 0                      X X  X   X  X X XXX XX  XX X XXX       XX X X      XXX X X X XX    X  X    X    
-        0.84*10^ 0                      X X  X   X  X X XXX XX  XX X XXX       XX X X      XXX X X X XX    X  X    X    
-        0.72*10^ 0                      X X  X   X  X X XXX XX  XX X XXX       XX X X      XXX X X X XX    X  X    X    
-        0.60*10^ 0                      X X  X   X  X X XXX XX  XX X XXX       XX X X      XXX X X X XX    X  X    X    
-        0.48*10^ 0                      X X  X   X  X X XXX XX  XX X XXX       XX X X      XXX X X X XX    X  X    X    
-        0.36*10^ 0                      X X  X   X  X X XXX XX  XX X XXX       XX X X      XXX X X X XX    X  X    X    
-        0.24*10^ 0                      X X  X   X  X X XXX XX  XX X XXX       XX X X      XXX X X X XX    X  X    X    
-        0.12*10^ 0                      X X  X   X  X X XXX XX  XX X XXX       XX X X      XXX X X X XX    X  X    X    
+        1.40*10^ 1                       X                                                                              
+        1.35*10^ 1                       X                                                                              
+        1.30*10^ 1                       X                                                                              
+        1.25*10^ 1                       X                                                                              
+        1.20*10^ 1                       X                                                                              
+        1.15*10^ 1                       X                                                                              
+        1.10*10^ 1                       X                                                                              
+        1.05*10^ 1                       X                                                                              
+        1.00*10^ 1                       X     X     X                                                                  
+        0.95*10^ 1                       X     X     X                                                                  
+        0.90*10^ 1                       X X X X     X                                                                  
+        0.85*10^ 1                       X X X X     X                                                                  
+        0.80*10^ 1                       X XXX X     X                                                                  
+        0.75*10^ 1                       X XXX X     X                                                                  
+        0.70*10^ 1                       X XXX X   X X     XX   X                                                       
+        0.65*10^ 1                       X XXX X   X X     XX   X                                                       
+        0.60*10^ 1                      XXXXXXXXX  X X  X XXX   X            XX                                         
+        0.55*10^ 1                      XXXXXXXXX  X X  X XXX   X            XX                                         
+        0.50*10^ 1                      XXXXXXXXX  XXX XX XXX   X  X         XX              X                          
+        0.45*10^ 1                      XXXXXXXXX  XXX XX XXX   X  X         XX              X                          
+        0.40*10^ 1                      XXXXXXXXX XXXXXXXXXXXXX XX X       X XX              X      X                   
+        0.35*10^ 1                      XXXXXXXXX XXXXXXXXXXXXX XX X       X XX              X      X                   
+        0.30*10^ 1                      XXXXXXXXX XXXXXXXXXXXXX XXXXXXX XXXX XX  XX     XX X X      X     X X           
+        0.25*10^ 1                      XXXXXXXXX XXXXXXXXXXXXX XXXXXXX XXXX XX  XX     XX X X      X     X X           
+        0.20*10^ 1                      XXXXXXXXX XXXXXXXXXXXXX XXXXXXXXXXXX XXX XX X   XX XXXX X   X     X X  XXXXXXX  
+        0.15*10^ 1                      XXXXXXXXX XXXXXXXXXXXXX XXXXXXXXXXXX XXX XX X   XX XXXX X   X     X X  XXXXXXX  
+        0.10*10^ 1                      XXXXXXXXX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXXXXXX  XXXXXX  XXXXXXX  
+        0.05*10^ 1                      XXXXXXXXX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXXXXXX  XXXXXX  XXXXXXX  
 
           Contents                                                                                                      
-            *10^ 0  0000000000000000000010100200010010201120210012010112000000011010100000013101010201100001001000010000
+            *10^ 1  0000000000000000000001000001000001000000000000000000000000000000000000000000000000000000000000000000
+            *10^ 0  0000000000000000000064698960604750456467744174353332333416620331211133132521211140011131300222222200
             *10^-1  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
             *10^-2  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-            *10^-3  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
           Low edge                                                                                                      
             *10^ 1  0000000000111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
             *10^ 0  0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
             *10^-1  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
-   Entries  =        61   xMin =     0.000   Underflow =     0.000   Mean   =    54.720   RMS  =    20.643
-   SumW(in) =    41.000   xMax =   100.000   Overflow  =    20.000   Median =    50.500   nEff =    41.000
+   Entries  =       356   xMin =     0.000   Underflow =     0.000   Mean   =    46.456   RMS  =    21.279
+   SumW(in) =   271.000   xMax =   100.000   Overflow  =    85.000   Median =    40.500   nEff =   271.000

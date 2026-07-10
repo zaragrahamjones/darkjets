@@ -1,4 +1,4 @@
-// darkjetplane.cc is a part of the PYTHIA event generator.
+// darkinvisible.cc is a part of the PYTHIA event generator.
 // Copyright (C) 2025 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
@@ -50,8 +50,8 @@ int main(int argc, char *argv[])
   Pythia pythia;
 
   int nEvents = 1000;
-  std::string outfile = "lund.dat";
-  std::string cmndfile = "darkjetplane.cmnd";
+  std::string outfile = "darkinvs_lund.dat";
+  std::string cmndfile = "darkinvisible.cmnd";
 
   int opt;
   while ((opt = getopt(argc, argv, "e:r:")) != -1)
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
   if (optind < argc)
     cmndfile = argv[optind];
   pythia.readFile(cmndfile);
-  int numberCount = std::max(1, nEvents / 100);
+  int numberCount = std::max(1, nEvents / 10);
   pythia.readString("Next:numberCount = " + std::to_string(numberCount));
   std::ofstream out(outfile);
 
