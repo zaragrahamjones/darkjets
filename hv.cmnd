@@ -31,6 +31,31 @@ HadronLevel:Hadronize = on
 # TimeShower:QEDshowerByL = off
 # TimeShower:QEDshowerByGamma = off
 
+============================================
+! Hidden Valley process
+============================================
+
+! Option A: internal production of Fv Fvbar pairs
+HiddenValley:gg2DvDvbar = on
+4900001:m0 = 1000.
+
+! Option B: internal production via Zv 
+# HiddenValley:ffbar2Zv = on
+# 4900023:m0   = 1000.
+# 4900023:mMin =  500.
+# 4900023:mMax = 1500.
+# 4900023:onMode = off
+# 4900023:onIfAny = 4900101 4900102 4900103
+
+! Option C: internal production via Higgs
+# HiggsSM:all = on
+# 25:onMode = 0
+
+! Option D: internal production via both g and q
+# HiddenValley:qqbar2DvDvbar = on
+# HiddenValley:gg2DvDvbar = on
+# HiddenValley:alphaOrder = 1
+
 ! Hidden Valley PS
 Hiddenvalley:FSR = on
 HiddenValley:setLambda = on
@@ -50,6 +75,8 @@ HiddenValley:fragment = on
 ! Revert to old 
 # TimeShower:recoilStrategyRF = 1
 
+
+! Mihoko suggestions for the card:
 # ! --- Hidden Valley production
 # ! Option A: internal production of dark quark pairs
 # HiddenValley:qqbar2DvDvbar = on

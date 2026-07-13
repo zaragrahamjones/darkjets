@@ -1,7 +1,7 @@
 ! hiddenvalley.cmnd
 ! ------------------------------------------------------------
-! pp -> dark quarks -> dark shower -> visible dark hadrons
 ! Pythia8 HiddenValley example card
+! pp -> dark quarks -> dark shower -> visible dark hadrons
 ! ------------------------------------------------------------
 
 ! Settings
@@ -11,9 +11,9 @@ Beams:eCM = 13600.
 Next:numberCount = 100
 Init:showChangedSettings = on      ! list changed settings
 Init:showChangedParticleData = off ! list changed particle data
-Next:numberShowInfo = 0            ! print event information n times
+Next:numberShowInfo = 1            ! print event information n times
 Next:numberShowProcess = 1         ! print process record n times
-Next:numberShowEvent = 0           ! print event record n times
+Next:numberShowEvent = 1           ! print event record n times
 
 ! Standard QCD/QED settings
 PartonLevel:ISR = on
@@ -34,24 +34,29 @@ HiddenValley:fragment = on
 ! Hidden Valley process qv -> HV-mesons
 ! Ahmed said: N_cD=3, N_fD=3, separateFlav=off
 HiddenValley:Ngauge = 3         ! hv QCD is turned on
-HiddenValley:nFlav = 1          ! 1 dark quark flavor
-HiddenValley:spinFv = 0         ! scalar dark "quark"
+HiddenValley:nFlav = 1          ! #N dark quark flavors, Ahmed:3 Mihoko:1
+HiddenValley:separateFlav = off
+HiddenValley:spinFv = 0         ! scalar dark quark
+HiddenValley:probVector = 0.7
 
 ! Dark confinement scale
-! Ahmed said:Lambda_D=5
 HiddenValley:setLambda = on
-HiddenValley:Lambda = 10.0
+HiddenValley:Lambda = 10.0 ! Ahmed:5 Mihoko:10
 
 ! Shower cutoff; should be below/around dark hadron scale but not too small
 HiddenValley:pTminFSR = 1.0
 
 ! Masses
-! Ahmed said: mpid=3, mrhoD=12.55 
 4900101:m0 = 20.0       ! Dark quark mass
-4900111:m0 = 10.0       ! Dark pion mass
-4900113:m0 = 25.0       ! Dark rho meson mass
+4900111:m0 = 10.0       ! Dark pion mass, Ahmed:3 Mihoko:10
+4900113:m0 = 25.0       ! Dark rho meson mass, Ahmed:12.55 Mihoko:25
 
-55:m0 = 1000.0          ! s-channel spin-1 mediator mass, mZ' = 1TeV
+4900023:m0 = 1000.
+4900023:mMin = 500. ! dont know what this is
+4900023:mMax = 1500. ! or this...
+
+# these are the wrong masses...?
+# 55:m0 = 1000.0          ! s-channel spin-1 mediator mass, mZ' = 1TeV
 # 54:m0 = 500.0         ! s-channel spin-0 mediator mass
 # 52:m0 = 10.0          ! generic spin 1/2 fermionic dark matter mass
 
@@ -64,7 +69,7 @@ HiddenValley:pTminFSR = 1.0
 4900113:tau0 = 0.0
 4900113:oneChannel = 1 1.0 91 1 -1
 
-! Also Ahmed said: pt cut on the jet > 1 TeV, probVec=0.7
+! Also Ahmed said: pt cut on the jet > 1 TeV
 
 
 

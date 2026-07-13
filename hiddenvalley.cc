@@ -57,15 +57,10 @@ int main(int argc, char *argv[])
   //Generator.
   Pythia pythia;
 
-  // Some main settings. Many other options exist; see examples further down.
-
-  // Process type: 1 = Fv pair, 2 = Zv portal to qv, 3 = Higgs portal to gv.
-  int  procType = 1;
-
   // Generator. Process selection from command-line arguments.
   int nEvents = 1000;
   std::string outfile = "hv_lund.dat";
-  std::string cmndfile = "hiddenvalley.cmnd";
+  std::string cmndfile = ""; // no default command file, must be specified
 
   int opt;
   while ((opt = getopt(argc, argv, "e:r:")) != -1)
@@ -91,27 +86,9 @@ int main(int argc, char *argv[])
   pythia.readString("Next:numberCount = " + std::to_string(numberCount));
   std::ofstream out(outfile);
 
-  // Begin to set up generator: beams.
-  Event& event = pythia.event;
-
-  // Production process via Fv Fvbar.
-  if (procType == 1) {
-    pythia.readString("HiddenValley:gg2DvDvbar = on");
-    pythia.readString("4900001:m0 = 1000.");
-
-  // Production process via Zv.
-  } else if (procType == 2) {
-    pythia.readString("HiddenValley:ffbar2Zv = on");
-    pythia.readString("4900023:m0   = 1000.");
-    pythia.readString("4900023:mMin =  500.");
-    pythia.readString("4900023:mMax = 1500.");
-    pythia.readString("4900023:onMode = off");
-    pythia.readString("4900023:onIfAny = 4900101 4900102 4900103");
-
-  // Production process via H, and decay to gv gv or gammav gammav.
-  } else {
-    pythia.readString("HiggsSM:all = on");
-    pythia.readString("25:onMode = 0");
+  // Production process via H, and decay to gv gv or gammav gammav. 
+  // .cmnd cannot handle this, so we do it here.
+  if (pythia.settings.flag("HiggsSM:all") == on){
     if (pythia.settings.flag("Hiddenvalley:alphaOrder") == 1)
       pythia.readString("25:addChannel = 1 0.1 100 4900021 4900021");
     else
@@ -121,7 +98,8 @@ int main(int argc, char *argv[])
   // If Pythia fails to initialize, exit with error.
   if (!pythia.init()) return 1;
 
-  // Event (process) shorthand.
+  // Event/process shorthand.
+  Event &event = pythia.event;
   Event &process = pythia.process;
 
   // Fastjet analysis - select algorithm and parameters.
@@ -149,8 +127,13 @@ int main(int argc, char *argv[])
   int iErr = 0;
 
   // print all settings
-  // pythia.settings.listAll();
-  // pythia.particleData.listAll();
+  pythia.settings.listChanged();
+
+  std::vector<int> hvIds = {
+      4900001, 4900101, 4900102, 4900103,
+      4900021, 4900022, 4900023,
+      4900111, 4900113, 4900211, 4900213};
+  pythia.particleData.list(hvIds);
 
   // Begin event loop. Generate event. Extra HV colour output.
   for (int iEvent = 0; iEvent < nEvents; ++iEvent) {
