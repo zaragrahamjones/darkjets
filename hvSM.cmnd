@@ -1,0 +1,39 @@
+! hiddenvalley.cmnd
+! ------------------------------------------------------------
+! Pythia8 HiddenValley example card
+! pp-> DM process-> dark shower -> visible dark hadrons
+! ------------------------------------------------------------
+
+! Settings
+Beams:idA = 2212
+Beams:idB = 2212
+Beams:eCM = 13600.
+Next:numberCount = 100
+Init:showChangedSettings = on      ! list changed settings
+Init:showChangedParticleData = off ! list changed particle data
+Next:numberShowInfo = 1            ! print event information n times
+Next:numberShowProcess = 1         ! print process record n times
+Next:numberShowEvent = 1           ! print event record n times
+
+! Standard QCD/QED settings
+PartonLevel:ISR = on
+PartonLevel:FSR = on
+PartonLevel:MPI = on
+HadronLevel:Hadronize = on
+! Switch off unwanted parts for HV-only simulation.
+! Only FSR:
+# PartonLevel:ISR = off
+# PartonLevel:MPI = off
+# HadronLevel:all = off
+! Only HV in FSR:
+# TimeShower:QCDshower = off
+# TimeShower:QEDshowerByQ = off
+# TimeShower:QEDshowerByL = off
+# TimeShower:QEDshowerByGamma = off
+
+! No Hidden Valley
+HiddenValley:all = off
+HiddenValley:FSR = off
+HiddenValley:fragment = off
+HardQCD:all = on
+PhaseSpace:pTHatMin = 1000.

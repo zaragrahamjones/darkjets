@@ -59,11 +59,12 @@ int main(int argc, char *argv[])
 
   // Generator. Process selection from command-line arguments.
   int nEvents = 1000;
+  int seed = -1;
   std::string outfile = "hv_lund.dat";
   std::string cmndfile = ""; // no default command file, must be specified
 
   int opt;
-  while ((opt = getopt(argc, argv, "e:r:")) != -1)
+  while ((opt = getopt(argc, argv, "e:r:s:")) != -1)
   {
     switch (opt)
     {
@@ -73,22 +74,29 @@ int main(int argc, char *argv[])
     case 'r':
       outfile = optarg;
       break;
+    case 's':
+      seed = std::stoi(optarg);
+      break;
     default:
       std::cerr << "Usage: " << argv[0]
-                << " [-e events] [-r outfile] [cmndfile]\n";
+                << " [-e events] [-r outfile] [-s seed] [cmndfile]\n";
       return 1;
     }
   }
   if (optind < argc)
     cmndfile = argv[optind];
   pythia.readFile(cmndfile);
+  if (seed > 0) {
+    pythia.readString("Random:setSeed = on");
+    pythia.readString("Random:seed = " + std::to_string(seed));
+  }
   int numberCount = std::max(1, nEvents / 10);
   pythia.readString("Next:numberCount = " + std::to_string(numberCount));
-  std::ofstream out(outfile);
 
   // Production process via H, and decay to gv gv or gammav gammav. 
   // .cmnd cannot handle this, so we do it here.
-  if (pythia.settings.flag("HiggsSM:all") == on){
+  if (pythia.settings.flag("25:onMode") == 0)
+  {
     if (pythia.settings.flag("Hiddenvalley:alphaOrder") == 1)
       pythia.readString("25:addChannel = 1 0.1 100 4900021 4900021");
     else
@@ -116,7 +124,7 @@ int main(int argc, char *argv[])
   std::vector<fastjet::PseudoJet> fjInputs;
 
   std::ofstream lundOut(outfile);
-  lundOut << "# event jet log1overDelta logkt z Delta kt\n";
+  lundOut << "# event jet Delta kt z psi m2 multiplicity \n";
 
   // Book histograms. also error counter.
   Hist nGluonv( "number of HV gluons",  100, -0.5, 99.5);
@@ -179,15 +187,15 @@ int main(int argc, char *argv[])
       if (!pythia.event[i].isFinal())
         continue;
 
-      // No neutrinos or DM.
-      if (pythia.event[i].idAbs() == 12 || pythia.event[i].idAbs() == 14 || pythia.event[i].idAbs() == 16 || pythia.event[i].idAbs() == 52)
+      // Detector-level jets should only use stable visible particles.
+      if (!pythia.event[i].isVisible())
         continue;
 
       // Only |eta| < 3.6.
-      if (abs(pythia.event[i].eta()) > 3.6)
+      if (std::abs(pythia.event[i].eta()) > 3.6)
         continue;
 
-      // Missing ET.
+      // Visible momentum entering the jet definition.
       missingETvec += pythia.event[i].p();
 
       // Store as input to Fastjet.
@@ -212,35 +220,44 @@ int main(int argc, char *argv[])
 
     if (sortedJets.size() < 1)
     {
-      // cout << " No jets found in event " << iEvent << endl;
+      cout << " No jets found in event " << iEvent << endl;
       continue;
     }
-    pTj.fill(sortedJets[0].pt());
+    // Extract Lund plane information for every selected jet. sortedJets is
+    // ordered by pT, so iJet = 0 is the leading jet, iJet = 1 is subleading, etc.
+    for (int iJet = 0; iJet < int(sortedJets.size()); ++iJet) {
+      pTj.fill(sortedJets[iJet].pt());
 
-    // Loop over the hardest jet and extract Lund plane information.
-    fastjet::PseudoJet j = sortedJets[0];
-    fastjet::PseudoJet j1, j2;
+      fastjet::PseudoJet j = sortedJets[iJet];
+      fastjet::PseudoJet j1, j2;
 
-    while (j.has_parents(j1, j2))
-    {
-      if (j1.pt() < j2.pt())
-        std::swap(j1, j2);
+      while (j.has_parents(j1, j2))
+      {
+        if (j1.pt() < j2.pt())
+          std::swap(j1, j2);
+        // In declustering language: j is the pre-branching object,
+        // j1 is the harder post-branching branch, j2 is the softer emitted branch.
 
-      double Delta = j1.delta_R(j2);
-      if (Delta <= 0.)
-        break;
+        double Delta = j1.delta_R(j2);
+        if (Delta <= 0.)
+          break;
 
-      double z = j2.pt() / (j1.pt() + j2.pt());
-      double kt = j2.pt() * Delta;
+        double z = j2.pt() / (j1.pt() + j2.pt());
+        double kt = j2.pt() * Delta;
+        double psi = std::atan2(j1.rap() - j2.rap(), j1.delta_phi_to(j2));
+        double m2 = j.m2();
+        double multiplicity = j1.constituents().size() + j2.constituents().size();
 
-      lundOut << iEvent << " 0 "
-              << log(1. / Delta) << " "
-              << log(kt) << " "
-              << z << " "
-              << Delta << " "
-              << kt << "\n";
+        lundOut << iEvent << " " << iJet << " "
+                << Delta << " "
+                << kt << " "
+                << z << " "
+                << psi << " "
+                << m2 << " "
+                << multiplicity << "\n";
 
-      j = j1;
+        j = j1;
+      }
     }
 
     // End of event loop. Print statistics and histograms.

@@ -48,7 +48,7 @@ Here `chi` is a stable invisible particle introduced for phenomenological purpos
 
 ## 2. Minimal visible dark jet card
 
-The following is a simple Pythia 8 Hidden Valley card for prompt visible dark jets.
+The following is a simple Pythia 8 Hidden Valley card for prompt visible dark jets, made by Mihoko and ChatGPT.
 
 ```text
 ! ------------------------------------------------------------
