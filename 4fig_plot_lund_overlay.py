@@ -1,12 +1,21 @@
+import sys
+from pathlib import Path
+
 import numpy as np
 import matplotlib.pyplot as plt
 
-samples = {
-    "SM Z(inv)+j": "lund_sm.dat",
-    "dark g=0.1": "lund_dark_g0p1.dat",
-    "dark g=0.5": "lund_dark_g0p5.dat",
-    "dark g=1.0": "lund_dark_g1p0.dat",
-}
+if len(sys.argv) < 3:
+    print(f"Usage: python {sys.argv[0]} reference.dat comparison1.dat [comparison2.dat ...]")
+    sys.exit(1)
+
+reference_file = sys.argv[1]
+comparison_files = sys.argv[2:]
+
+def plot_name(fname):
+    name = Path(fname).stem
+    if name.endswith("_lund"):
+        name = name[:-5]
+    return name
 
 xbins = np.linspace(0.0, 5.0, 80)
 ybins = np.linspace(-2.0, 6.0, 80)
@@ -17,25 +26,29 @@ yc = 0.5 * (ybins[:-1] + ybins[1:])
 
 hists = {}
 
-for label, fname in samples.items():
-    x, y = np.loadtxt(fname, comments="#", usecols=(2, 3), unpack=True)
-    h, _, _ = np.histogram2d(x, y, bins=(xbins, ybins))
-    hists[label] = h
+for fname in [reference_file] + comparison_files:
+    Delta, kt = np.loadtxt(fname, comments="#", usecols=(4, 5), unpack=True)
+    h, _, _ = np.histogram2d(np.log(1/Delta), np.log(kt), bins=(xbins, ybins))
+    hists[plot_name(fname)] = h
 
-sm = hists["SM Z(inv)+j"]
+reference_name = plot_name(reference_file)
+reference = hists[reference_name]
 
-fig, axs = plt.subplots(1, 4, figsize=(16, 4), sharex=True, sharey=True)
+fig, axs = plt.subplots(1, len(comparison_files) + 1, figsize=(4 * (len(comparison_files) + 1), 4), sharex=True, sharey=True)
+if len(comparison_files) == 0:
+    axs = [axs]
 
-# Plot the SM Lund plane
-im_sm = axs[0].pcolormesh(xbins, ybins, sm.T, cmap="inferno", shading="auto")
-axs[0].set_title("SM Z(inv)+j")
+# Plot the reference Lund plane
+im_sm = axs[0].pcolormesh(xbins, ybins, reference.T, cmap="inferno", shading="auto")
+title_size = min(12, 500 / max(len(reference_name), 1))
+axs[0].set_title(reference_name, fontsize=title_size)
 axs[0].set_xlabel(r"$\ln(1/\Delta)$")
 axs[0].set_ylabel(r"$\ln(k_t/\mathrm{GeV})$")
 
-# Plot differences for the DM samples
-dm_labels = [k for k in samples if k != "SM Z(inv)+j"]
+# Plot overlays for the comparison samples
+comparison_labels = [plot_name(fname) for fname in comparison_files]
 
-for ax, dm_label in zip(axs[1:], dm_labels):
+for ax, comparison_label in zip(axs[1:], comparison_labels):
     # ax.pcolormesh(xbins, ybins, sm.T,
     #             cmap="inferno",
     #             shading="auto",
@@ -48,21 +61,23 @@ for ax, dm_label in zip(axs[1:], dm_labels):
     #             alpha=0.5,
     #             label=dm_label)
 
-    ax.contour(xc, yc, sm.T,
+    ax.contour(xc, yc, reference.T,
             levels=3,
             cmap="inferno",
             linewidths=2,
             alpha=1,
-            label="SM")
+            label=reference_name)
 
-    ax.contour(xc, yc, hists[dm_label].T,
+    ax.contour(xc, yc, hists[comparison_label].T,
             levels=3,
             cmap="inferno",
             linewidths=2,
             alpha=1,
-            label=dm_label)    
+            label=comparison_label)    
     
-    ax.set_title(f"{dm_label} vs SM")
+    title = f"{comparison_label} vs {reference_name}"
+    title_size = min(12, 500 / max(len(title), 1))
+    ax.set_title(title, fontsize=title_size)
     ax.set_xlabel(r"$\ln(1/\Delta)$")
     ax.set_ylabel(r"$\ln(k_t/\mathrm{GeV})$")
 

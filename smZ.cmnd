@@ -1,0 +1,40 @@
+! smZ.cmnd
+! ------------------------------------------------------------
+! Pythia8 HiddenValley SM comparison example card
+! pp-> ??? -> QCD shower -> visible hadrons
+! ------------------------------------------------------------
+
+! Settings
+Beams:idA = 2212
+Beams:idB = 2212
+Beams:eCM = 13600.
+Next:numberCount = 1000
+Init:showChangedSettings = on      ! list changed settings
+Init:showChangedParticleData = off ! list changed particle data
+Next:numberShowInfo = 1            ! print event information n times
+Next:numberShowProcess = 1         ! print process record n times
+Next:numberShowEvent = 1           ! print event record n times
+Stat:showPartonLevel = on          ! additional statistics on MPI
+Main:writeLog = on                 ! Write all printed output to a log file.
+
+
+! Standard QCD/QED settings
+PartonLevel:ISR = on
+PartonLevel:FSR = on
+PartonLevel:MPI = on
+HadronLevel:Hadronize = on
+
+! Jet settings
+Analysis:etaMax = 3.6
+Analysis:jetPtMin = 20.0
+
+! No Hidden Valley
+HiddenValley:all = off
+HiddenValley:FSR = off
+HiddenValley:fragment = off
+
+! QCD dijet background with pT > m_Z'/2, 
+! to compare SM dijets with the hv signal 
+!                           where Z'->qv qvbar.
+HardQCD:all = on
+PhaseSpace:pTHatMin = 400. 

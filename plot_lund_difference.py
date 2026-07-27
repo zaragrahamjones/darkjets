@@ -39,8 +39,8 @@ xbins = np.linspace(0.8, 8.0, 80)
 ybins = np.linspace(-4.0,8.0, 80)
 
 def load_hist(fname, max_events):
-    Delta = []
-    kt = []
+    x = []
+    y = []
 
     with open(fname) as f:
         for line in f:
@@ -53,13 +53,10 @@ def load_hist(fname, max_events):
             if event >= max_events:
                 break
 
-            Delta.append(float(cols[2]))
-            kt.append(float(cols[3]))
-    
-    ln_oneoverDelta = np.log(1.0 / np.array(Delta))
-    ln_kt = np.log(np.array(kt))
+            x.append(float(cols[4]))
+            y.append(float(cols[5]))
 
-    h, _, _ = np.histogram2d(ln_oneoverDelta, ln_kt, bins=(xbins, ybins))
+    h, _, _ = np.histogram2d(x, y, bins=(xbins, ybins))
     return h
 
 h1 = load_hist(file1, n_events)
@@ -86,12 +83,18 @@ im1 = ax.pcolormesh(
     vmax=vmax,
 )
 
-ax.set_title(f"({name2} - {name1}) / {n_events} events")
+plot_name = f"{name2}_minus_{name1}"
+if plot_name.endswith("_lund"):
+    plot_name = plot_name[:-5]
+event_line = f"{n_events} events"
+title = f"{plot_name}\n{event_line}"
+title_size = min(12, 500 / max(len(plot_name), len(event_line), 1))
+ax.set_title(title, fontsize=title_size)
 ax.set_xlabel(r"$\ln(1/\Delta)$")
 ax.set_ylabel(r"$\ln(k_t/\mathrm{GeV})$")
 fig.colorbar(im1, ax=ax, label="Normalised entry difference")
 
-plt.tight_layout()
+plt.tight_layout(rect=(0, 0, 1, 0.92))
 
 outfile = f"{name2}_minus_{name1}.pdf"
 plt.savefig(outfile)

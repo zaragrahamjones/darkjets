@@ -1,4 +1,5 @@
 import sys
+import textwrap
 from pathlib import Path
 
 import numpy as np
@@ -9,12 +10,14 @@ input_file = Path(sys.argv[1])
 output_file = input_file.with_suffix("").with_name(input_file.stem + "_lundplane.pdf")
 
 # plot
-Delta, kt = np.loadtxt(input_file, comments="#", usecols=(2, 3), unpack=True)
+x, y = np.loadtxt(input_file, comments="#", skiprows=1, usecols=(4, 5), unpack=True)
 
-plt.hist2d(np.log(1. / Delta), np.log(kt), bins=80, cmap="magma")
+plt.hist2d(x, y, bins=80, cmap="magma")
 plt.xlabel(r"$\ln(1/\Delta)$")
 plt.ylabel(r"$\ln(k_t/\mathrm{GeV})$")
 plt.colorbar(label="entries")
-plt.title(f"Lund plane for {input_file.stem}")
-plt.tight_layout()
+title = f"Lund plane for\n{input_file.stem}"
+title_size = min(12, 500 / max(len(input_file.stem), 1))
+plt.title(title, fontsize=title_size)
+plt.tight_layout(rect=(0, 0, 1, 0.95))
 plt.savefig(output_file)
