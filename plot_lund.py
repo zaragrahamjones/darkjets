@@ -5,14 +5,17 @@ from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 
-# use python3 plot_lund.py lund01.dat to run this script, with output lund01_lundplane.pdf
+# use python3 plot_lund.py hv.lunddat to run this script, with output hv_lundplane.pdf
 input_file = Path(sys.argv[1])
 output_file = input_file.with_suffix("").with_name(input_file.stem + "_lundplane.pdf")
 
-# plot
-x, y = np.loadtxt(input_file, comments="#", skiprows=1, usecols=(4, 5), unpack=True)
+xbins = np.linspace(1.0, 6.0, 80)
+ybins = np.linspace(-4.0,6.0, 80)
 
-plt.hist2d(x, y, bins=80, cmap="magma")
+# plot
+x, y = np.loadtxt(input_file, comments="#", skiprows=1, usecols=(6,7), unpack=True)
+
+plt.hist2d(x, y, bins=(xbins, ybins), cmap="magma")
 plt.xlabel(r"$\ln(1/\Delta)$")
 plt.ylabel(r"$\ln(k_t/\mathrm{GeV})$")
 plt.colorbar(label="entries")

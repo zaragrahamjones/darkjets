@@ -13,9 +13,7 @@
 #include "Pythia8Plugins/FastJet3.h"
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/ClusterSequence.hh"
-#include "Pythia8Plugins/InputParser.h"
 
-#include <chrono>
 #include <unistd.h>
 #include <fstream>
 #include <sstream>
@@ -26,7 +24,6 @@
 #include <vector>
 #include <iomanip>
 #include <algorithm>
-#include <map>
 
 int parseEvents(const std::string &s)
 {
@@ -57,9 +54,8 @@ int parseEvents(const std::string &s)
 
 struct RunOptions
 {
-  int nEvents = 1000;
+  int nEvents = 10000;
   int seed = -1;
-  int eventRecordEvent = -1;
   std::string outfile = "hv";
   std::vector<std::string> cmndfiles;
 };
@@ -69,7 +65,7 @@ RunOptions parseCommandLine(int argc, char *argv[])
   RunOptions options;
 
   int opt;
-  while ((opt = getopt(argc, argv, "e:o:s:r:")) != -1)
+  while ((opt = getopt(argc, argv, "e:o:s:")) != -1)
   {
     switch (opt)
     {
@@ -82,13 +78,10 @@ RunOptions parseCommandLine(int argc, char *argv[])
     case 's':
       options.seed = std::stoi(optarg);
       break;
-    case 'r':
-      options.eventRecordEvent = std::stoi(optarg);
-      break;
     default:
       std::cerr << "Usage: " << argv[0]
                 << " [-e events] [-o outfiles label] [-s seed]"
-                << " [-r event# record] [cmndfiles...]\n";
+                << " [cmndfiles...]\n";
       throw std::runtime_error("Invalid command-line arguments");
     }
   }
@@ -125,37 +118,15 @@ bool fromDarkHadron(int i, const Event& event)
   return false;
 }
 
-bool fromDarkParton(int i, const Event &event)
-{
-  std::vector<int> stack(1, i);
-  std::vector<bool> seen(event.size(), false);
-  while (!stack.empty())
-  {
-    int iNow = stack.back();
-    stack.pop_back();
-    if (iNow <= 0 || iNow >= event.size() || seen[iNow])
-      continue;
-    seen[iNow] = true;
-    int id = event[iNow].idAbs();
-    if (id >= 4900101 && id <= 4900108 || id == 4900021)
-      return true;
-    int mother1 = event[iNow].mother1();
-    int mother2 = event[iNow].mother2();
-    if (mother1 > 0)
-      stack.push_back(mother1);
-    if (mother2 > 0 && mother2 != mother1)
-      stack.push_back(mother2);
-  }
-  return false;
-}
-
-std::vector<double> darkHadronFractions(const fastjet::PseudoJet& jet,
-                                  const Event& event)
+void darkHadronFractions(const fastjet::PseudoJet& jet, const Event& event,
+                         double& eFrac, double& ptFrac)
 {
   std::vector<fastjet::PseudoJet> constituents = jet.constituents();
-  if (constituents.size() == 0)
-    return {0., 0., 0.};
-  int nDark = 0;
+  if (constituents.size() == 0) {
+    eFrac = 0.;
+    ptFrac = 0.;
+    return;
+  }
   double eDark = 0.;
   double ptDark = 0.;
   double eConstituents = 0.;
@@ -164,54 +135,12 @@ std::vector<double> darkHadronFractions(const fastjet::PseudoJet& jet,
     eConstituents += constituents[iConst].E();
     ptConstituents += constituents[iConst].pt();
     if (fromDarkHadron(constituents[iConst].user_index(), event)) {
-      ++nDark;
       eDark += constituents[iConst].E();
       ptDark += constituents[iConst].pt();
     }
   }
-  return {double(nDark) / double(constituents.size()), eDark / eConstituents, ptDark / ptConstituents};
-}
-
-void printEventBranch(int i, const Event& event, std::ostream& out,
-                      const std::map<int, int>& jetIndexOfParticle, int depth,
-                      const std::string& branch)
-{
-  for (int iDepth = 0; iDepth < depth; ++iDepth)
-    out << "  ";
-
-  if (i <= 0 || i >= event.size()) {
-    out << branch << " unknown\n";
-    return;
-  }
-
-  int daughter1 = event[i].daughter1();
-  int daughter2 = event[i].daughter2();
-  out << branch << " " << event[i].name();
-  if (daughter1 <= 0) {
-    std::map<int, int>::const_iterator it = jetIndexOfParticle.find(i);
-    if (it != jetIndexOfParticle.end())
-      out << " [jet " << it->second << "]";
-    else
-      out << " [no jet]";
-    out << "\n";
-    return;
-  }
-  out << "\n";
-
-  std::vector<int> daughters;
-  int lastDaughter = (daughter2 > daughter1) ? daughter2 : daughter1;
-  for (int iDaughter = daughter1; iDaughter <= lastDaughter; ++iDaughter)
-    if (iDaughter > 0 && iDaughter < event.size())
-      daughters.push_back(iDaughter);
-
-  std::sort(daughters.begin(), daughters.end(),
-            [&event](int a, int b) { return event[a].pT() > event[b].pT(); });
-
-  for (int iDaughter = 0; iDaughter < int(daughters.size()); ++iDaughter) {
-    std::string daughterBranch = (iDaughter == 0) ? "hard" : "soft";
-    printEventBranch(daughters[iDaughter], event, out, jetIndexOfParticle,
-                     depth + 1, daughterBranch);
-  }
+  eFrac = eDark / eConstituents;
+  ptFrac = ptDark / ptConstituents;
 }
 
 //==========================================================================
@@ -227,11 +156,10 @@ int main(int argc, char *argv[])
   }
   int nEvents = options.nEvents;
   int seed = options.seed;
-  int eventRecordEvent = options.eventRecordEvent;
   std::string outfile = options.outfile;
   std::vector<std::string> cmndfiles = options.cmndfiles;
 
-  // Catch all Pythia output until the log setting has been read.
+  // Suppress Pythia setup output.
   stringstream coutBuf;
   streambuf *oldCout = cout.rdbuf(coutBuf.rdbuf());
 
@@ -256,14 +184,12 @@ int main(int argc, char *argv[])
     pythia.readString("Random:setSeed = on");
     pythia.readString("Random:seed = " + std::to_string(seed));
   }
-  int numberCount = std::max(1, nEvents / 10);
-  pythia.readString("Next:numberCount = " + std::to_string(numberCount));
 
   // Detector-level parameters for jet analysis.
   double etaMax = pythia.settings.parm("JetAnalysis:etaMax");
   double jetPtMin = pythia.settings.parm("JetAnalysis:jetPtMin");
 
-  // Coupling constants input to width for hidden valley showering
+  // other variables for hidden valley showering
   if (pythia.settings.flag("HiddenValley:useCouplings"))
   {
     pythia.readString("HiddenValley:gSM = " + std::to_string(pythia.settings.parm("HiddenValley:gSM")));
@@ -271,33 +197,25 @@ int main(int argc, char *argv[])
     int nGauge = pythia.settings.mode("HiddenValley:Ngauge");
     int nFlav = pythia.settings.mode("HiddenValley:nFlav");
     double mZp = pythia.particleData.m0(4900023);
-    double SMwidth = (3.0 *mZp* pythia.settings.parm("HiddenValley:gSM") * pythia.settings.parm("HiddenValley:gSM")) / (2.0 * 3.14159);
-    double HVwidth = (nGauge * nFlav *mZp* pythia.settings.parm("HiddenValley:gHV") * pythia.settings.parm("HiddenValley:gHV")) / (12.0 * 3.14159);
-    double width = SMwidth + HVwidth;
-    pythia.readString("4900023:mWidth = " + std::to_string(width));
+    double SMwidth = (3.0 * mZp * pythia.settings.parm("HiddenValley:gSM") * pythia.settings.parm("HiddenValley:gSM")) / (2.0 * 3.14159);
+    double HVwidth = (nGauge * nFlav * mZp * pythia.settings.parm("HiddenValley:gHV") * pythia.settings.parm("HiddenValley:gHV")) / (12.0 * 3.14159);
+    double Zwidth = SMwidth + HVwidth;
+    pythia.readString("4900023:mWidth = " + std::to_string(Zwidth));
   }
+  double Zwidth = pythia.particleData.mWidth(4900023);
+  double Lambda = pythia.settings.parm("HiddenValley:Lambda");
+  double mq = pythia.particleData.m0(4900101);
 
-  // Production process via H, and decay to gv gv or gammav gammav. 
-  // .cmnd cannot handle this, so we do it here.
-  if (pythia.settings.flag("HiggsSM:all"))
-  {
-    if (pythia.settings.mode("Hiddenvalley:alphaOrder") == 1)
-      pythia.readString("25:addChannel = 1 0.1 100 4900021 4900021");
-    else
-      pythia.readString("25:addChannel = 1 0.1 100 4900022 4900022");
-  }
-
-  double mQv = pythia.particleData.m0(4900101);
-  if (pythia.settings.flag("HiddenValley:setMesonMassesFromQv") && mQv > 0.) {
+  if (pythia.settings.flag("HiddenValley:setMesonMassesFromQv") && mq > 0.) {
     double ratioPiRho = pythia.settings.parm("HiddenValley:ratioPiRho");
-    double mPi = 8.0 / (3.0 * ratioPiRho + 1.0) * mQv;
+    double mPi = 8.0 * mq / (3.0 * ratioPiRho + 1.0);
     double mRho = ratioPiRho * mPi;
     pythia.readString("4900111:m0 = " + std::to_string(mPi));
     pythia.readString("4900113:m0 = " + std::to_string(mRho));
   }
 
-    // Logfile initialization.
-    ofstream logBuf;
+  // Logfile initialization.
+  ofstream logBuf;
   if (pythia.settings.flag("Main:writeLog"))
   {
     logBuf.open(outfile + ".log");
@@ -308,11 +226,15 @@ int main(int argc, char *argv[])
   cout << coutBuf.str();
 
   // If Pythia fails to initialize, exit with error.
-  if (!pythia.init()) return 1;
+  if (!pythia.init())
+  {
+    cout.rdbuf(oldCout);
+    std::cerr << coutBuf.str();
+    return 1;
+  }
 
   // Event/process shorthand.
   Event &event = pythia.event;
-  Event &process = pythia.process;
 
   // Fastjet analysis - select algorithm and parameters.
   double Rparam = 0.4;
@@ -327,78 +249,60 @@ int main(int argc, char *argv[])
   // Fastjet input.
   std::vector<fastjet::PseudoJet> fjInputs;
 
-  std::ofstream lundOut(outfile + ".dat");
+  // lund plane output
+  std::ofstream lundOut(outfile + ".lunddat");
   int precision = 6;
   int fracPrecision = 2;
-  int realWidth = std::max(precision + 8, 12);
+  int lundWidth = std::max(precision + 8, 12);
   lundOut << "#evt"
           << std::setw(4) << "jet"
-          << std::setw(realWidth-3) << "darkEfrac"
-          << std::setw(realWidth-4) << "clustE"
-          << std::setw(realWidth-3) << "darkPtfrac"
-          << std::setw(realWidth-3) << "clustPt"
-          << std::setw(realWidth) << "ln_1/Delta"
-          << std::setw(realWidth) << "ln_kt"
-          << std::setw(realWidth) << "z"
-          << std::setw(realWidth) << "psi"
-          << std::setw(realWidth) << "m2"
+          << std::setw(lundWidth-4) << "clustE"
+          << std::setw(lundWidth-3) << "clustPt"
+          << std::setw(lundWidth) << "ln_1/Delta"
+          << std::setw(lundWidth) << "ln_kt"
+          << std::setw(lundWidth) << "z"
+          << std::setw(lundWidth) << "psi"
+          << std::setw(lundWidth) << "m2"
           << std::setw(5) << "mult" << "\n";
   lundOut << std::fixed << std::setprecision(precision);
 
-  // Book histograms. also error counter.
-  Hist nGluonv( "number of HV gluons",  100, -0.5, 99.5);
-  Hist nGammav( "number of HV gammas",  100, -0.5, 99.5);
-  Hist nHadronv("number of HV hadrons", 100, -0.5, 99.5);
-  Hist pTj("dN/dpTj", 100, 0., 100.);
-  Hist mRec("mRec", 100, 0., 1000.);
+  // jet level output
+  std::ofstream jetOut(outfile + ".jetdat");
+  jetOut << "#evt"
+         << std::setw(4) << "jet"
+         << std::setw(lundWidth-1) << "pt"
+         << std::setw(lundWidth) << "eta"
+         << std::setw(lundWidth) << "darkEfrac"
+         << std::setw(lundWidth) << "darkPtfrac"
+         << std::setw(7) << "nLund" << "\n";
+  jetOut << std::fixed << std::setprecision(precision);
+
+  // event level output file
+  std::ofstream eventOut(outfile + ".eventdat");
+  int evtprecision = 6;
+  int evtWidth = std::max(evtprecision + 8, 12);
+  eventOut << "#etacut jetPtMin Z'width Lambda m_qv \n";
+  eventOut << "#  " << etaMax << "    " << jetPtMin << "        " << Zwidth << "     " << Lambda << "     " << mq << "\n";
+  eventOut << "#evt"
+          << std::setw(evtWidth-3) << "metPx"
+          << std::setw(evtWidth) << "metPy"
+          << std::setw(evtWidth) << "metDet"
+          << std::setw(evtWidth) << "metTruth"
+          << "\n";
+  eventOut << std::fixed << std::setprecision(evtprecision);
+
   int iErr = 0;
 
-  // print all settings
-  pythia.settings.listChanged();
-
-  // for nflav <= 3
-  std::vector<int> hvConnectors = {4900001, 4900002, 4900003, 4900023};
-  std::vector<int> hvIds = {
-      4900001, 4900101, 4900102, 4900103,
-      4900021, 4900022, 4900023,
-      4900111, 4900113, 4900211, 4900213};
-  pythia.particleData.list(hvIds);
-
-  // Begin event loop. Generate event. Extra HV colour output.
+  // Begin event loop. Generate event.
   for (int iEvent = 0; iEvent < nEvents; ++iEvent) {
     if (!pythia.next()) {
       if (++iErr < 100) continue;
-      else {
-        cout << "Too many errors" << endl;
-        break;
-      }
-    }
-    if (iEvent == 0 && (process.hasHVcols() || event.hasHVcols())) {
-      process.listHVcols();
-      event.listHVcols();
+      else break;
     }
 
-    // Number of "final" gv, gammav and hadronv in current event.
-    int nGluonvNow  = 0;
-    int nGammavNow  = 0;
-    int nHadronvNow = 0;
-    for (int i = 0; i < event.size(); ++i) {
-      int idNow = event[i].idAbs();
-      int idDau = event[ event[i].daughter1() ].idAbs();
-      if      (idNow == 4900021 && idDau != 4900021) ++nGluonvNow;
-      else if (idNow == 4900022 && idDau != 4900022) ++nGammavNow;
-      else if (idNow >  4900110) ++nHadronvNow;
-    }
-    nGluonv.fill( nGluonvNow);
-    nGammav.fill( nGammavNow);
-    nHadronv.fill( nHadronvNow);
-
-    // Invariant mass of DM system.
-    Vec4 mRes = process[5].p() + process[6].p();
-    mRec.fill(mRes.mCalc());
-
-    // Keep track of missing ET.
-    Vec4 missingETvec;
+    // Keep track of visible momentum.
+    Vec4 visibleDetMomvec;
+    Vec4 invisibleTruthMomvec;
     fjInputs.clear();
 
     // Loop over event record to decide what to pass to FastJet.
@@ -408,6 +312,9 @@ int main(int argc, char *argv[])
       if (!pythia.event[i].isFinal())
         continue;
 
+      if (!pythia.event[i].isVisible())
+        invisibleTruthMomvec += pythia.event[i].p();
+
       // Detector-level jets should only use stable visible particles.
       if (!pythia.event[i].isVisible())
         continue;
@@ -416,8 +323,8 @@ int main(int argc, char *argv[])
       if (std::abs(pythia.event[i].eta()) > etaMax)
         continue;
 
-      // Visible momentum entering the jet definition.
-      missingETvec += pythia.event[i].p();
+      // Visible momentum entering the jet definition 
+      visibleDetMomvec += pythia.event[i].p();
 
       // Store as input to Fastjet.
       fastjet::PseudoJet particle(pythia.event[i].px(), pythia.event[i].py(),
@@ -428,10 +335,7 @@ int main(int argc, char *argv[])
 
     // Check that event contains analyzable particles.
     if (fjInputs.size() == 0)
-    {
-      cout << "Error: event with no final state particles" << endl;
       continue;
-    }
 
     // Run Fastjet algorithm.
     vector<fastjet::PseudoJet> inclusiveJets, sortedJets;
@@ -442,39 +346,27 @@ int main(int argc, char *argv[])
     sortedJets = sorted_by_pt(inclusiveJets);
 
     if (sortedJets.size() < 1)
-    {
-      cout << " No jets found in event " << iEvent << endl;
       continue;
-    }
-    // Extract Lund plane information for every selected jet. sortedJets is
-    // ordered by pT, so iJet = 0 is the leading jet, iJet = 1 is subleading, etc.
-    if (eventRecordEvent >= 0 && iEvent == eventRecordEvent) {
-      std::ofstream diagramOut(outfile + "_event"
-                               + std::to_string(eventRecordEvent)
-                               + "_eventrecord.dat");
-      std::map<int, int> jetIndexOfParticle;
-      for (int iJet = 0; iJet < int(sortedJets.size()); ++iJet) {
-        std::vector<fastjet::PseudoJet> constituents = sortedJets[iJet].constituents();
-        for (int iConst = 0; iConst < int(constituents.size()); ++iConst)
-          jetIndexOfParticle[constituents[iConst].user_index()] = iJet;
-      }
-      for (int i = 0; i < event.size(); ++i)
-        if (std::find(hvConnectors.begin(), hvConnectors.end(), event[i].idAbs()) != hvConnectors.end()
-            && event[i].status() == -22)
-        {
-          printEventBranch(i, event, diagramOut, jetIndexOfParticle, 0, "root");
-        }
-    }
+
+    double metPx = -visibleDetMomvec.px();
+    double metPy = -visibleDetMomvec.py();
+    double met = std::sqrt(metPx * metPx + metPy * metPy);
+    eventOut << iEvent
+             << std::setw(evtWidth) << metPx
+             << std::setw(evtWidth) << metPy
+             << std::setw(evtWidth) << met
+             << std::setw(evtWidth) << invisibleTruthMomvec.pT()
+             << "\n";
 
     for (int iJet = 0; iJet < int(sortedJets.size()); ++iJet) {
-      double fullJetPt = sortedJets[iJet].pt();
-      pTj.fill(fullJetPt);
-
-      double darkHadronEnergyFrac = darkHadronFractions(sortedJets[iJet], event)[1];
-      double darkHadronPtFrac = darkHadronFractions(sortedJets[iJet], event)[2];
+      double darkHadronEnergyFrac = 0.;
+      double darkHadronPtFrac = 0.;
+      darkHadronFractions(sortedJets[iJet], event, darkHadronEnergyFrac,
+                          darkHadronPtFrac);
 
       fastjet::PseudoJet j = sortedJets[iJet];
       fastjet::PseudoJet j1, j2;
+      int nLundEntries = 0;
 
       while (j.has_parents(j1, j2))
       {
@@ -498,30 +390,35 @@ int main(int argc, char *argv[])
         lundOut << iEvent
                 << std::setw(6) << iJet
                 << std::setprecision(fracPrecision)
-                << std::setw(realWidth-3) << darkHadronEnergyFrac
-                << std::setw(realWidth-3) << clusterE
-                << std::setw(realWidth-3) << darkHadronPtFrac
-                << std::setw(realWidth-3) << clusterPt
-                << std::setprecision(precision)
-                << std::setw(realWidth) << ln_oneoverDelta
-                << std::setw(realWidth) << ln_kt
-                << std::setw(realWidth) << z
-                << std::setw(realWidth) << psi
-                << std::setw(realWidth) << m2
-                << std::setw(5) << multiplicity << "\n";
+                << std::setw(lundWidth-3) << clusterE
+                << std::setw(lundWidth-3) << clusterPt
+                << std::setprecision(evtprecision)
+                << std::setw(lundWidth) << ln_oneoverDelta
+                << std::setw(lundWidth) << ln_kt
+                << std::setw(lundWidth) << z
+                << std::setw(lundWidth) << psi
+                << std::setw(lundWidth) << m2
+                << std::setw(5) << multiplicity 
+                << "\n";
 
+        ++nLundEntries;
         j = j1;
       }
+
+      jetOut << iEvent
+             << std::setw(6) << iJet
+             << std::setw(lundWidth) << sortedJets[iJet].pt()
+             << std::setw(lundWidth) << sortedJets[iJet].eta()
+             << std::setprecision(fracPrecision)
+             << std::setw(lundWidth) << darkHadronEnergyFrac
+             << std::setw(lundWidth) << darkHadronPtFrac
+             << std::setprecision(precision)
+             << std::setw(7) << nLundEntries
+             << "\n";
     }
 
-    // End of event loop. Print statistics and histograms.
+    // End of event loop.
     }
-  pythia.stat();
-  cout << nGluonv << nGammav << nHadronv << pTj;
-
-  if (pythia.settings.flag("Main:writeLog"))
-    cout.rdbuf(oldCout);
-
   // Done.
   return 0;
 }

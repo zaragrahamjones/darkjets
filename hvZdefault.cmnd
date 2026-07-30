@@ -1,0 +1,94 @@
+! hvZ.cmnd
+! ------------------------------------------------------------
+! Pythia8 HiddenValley example card
+! pp-> Z' -> qv + qvbar -> dark shower -> dark hadrons -> decay to SM -> SM shower
+! ------------------------------------------------------------
+
+! Settings
+Beams:idA = 2212
+Beams:idB = 2212
+Beams:eCM = 13600.
+Next:numberCount = 1000
+Init:showChangedSettings = on     ! list changed settings
+Init:showChangedParticleData = off ! list changed particle data
+Next:numberShowInfo = 1            ! print event information n times
+Next:numberShowProcess = 1         ! print process record n times
+Next:numberShowEvent = 1           ! print event record n times
+Stat:showPartonLevel = on        ! additional statistics on MPI
+Main:writeLog = on                ! Write all printed output to a log file.
+
+! Standard QCD/QED settings
+PartonLevel:ISR = on
+PartonLevel:FSR = on
+PartonLevel:MPI = on
+HadronLevel:Hadronize = on
+
+! Jet settings
+JetAnalysis:etaMax = 3.6
+JetAnalysis:jetPtMin = 20.0
+
+============================================
+! Hidden Valley process
+============================================
+
+! Internal production via Zv 
+HiddenValley:ffbar2Zv = on
+
+! nominal Z' mass = 1 TeV
+! allows generated m_Z' from 500 to 1500 GeV
+! turns off all Z' decays; allows decay to specific dark quarks 
+4900023:m0   = 1000.
+4900023:mMin =  500.
+4900023:mMax =  1500.
+
+! Z' couplings to dark quarks
+HiddenValley:useCouplings = off 
+! if on, Z' width is calculated from couplings; if off, Z' width is set by user/default
+HiddenValley:gSM = 1.
+HiddenValley:gHV = 1.
+! Z' width /resonance width, default=20.0
+4900023:mWidth = 20.0         
+4900023:onMode = off
+4900023:onIfAny = 4900101 
+
+! Hidden Valley shower and hadronization
+Hiddenvalley:FSR = on
+HiddenValley:alphaFSR = 0.1         ! dark shower coupling
+HiddenValley:fragment = on
+
+! Shower cutoff; should be below/around dark hadron scale but not too small
+HiddenValley:pTminFSR = 1.0
+
+! Hidden Valley process qv -> HV-mesons
+Hiddenvalley:alphaOrder = 1 ! turn off for no HV QCD (i.e. QED), turn on for HV QCD
+HiddenValley:Ngauge = 3     ! set=1 for no HV QCD (i.e. QED), set=3 for HV QCD
+HiddenValley:nFlav = 1
+HiddenValley:separateFlav = off
+HiddenValley:spinFv = 0         ! scalar dark quark
+HiddenValley:probVector = 0.75
+
+! Dark confinement scale
+HiddenValley:setLambda = on
+HiddenValley:Lambda = 10.0 ! Ahmed:5 Mihoko:10
+
+! Masses
+4900101:m0 = 5.0       ! Dark (constituent) quark mass, Ahmed left to default (5)
+HiddenValley:setMesonMassesFromQv = on
+HiddenValley:ratioPiRho = 5     ! same as QCD, if ratio <2 then rho->pi pi decay forbidden (need to turn it on explicitly either way)
+
+#4900111:m0 = 10.0       ! Dark pion mass, Ahmed:3 Mihoko:10
+#4900113:m0 = 25.0       ! Dark rho meson mass, Ahmed:12.55 Mihoko:25
+
+! Prompt visible decays
+! particle:oneChannel = onMode branchingRatio matrixElementMode daughter1 daughter2
+
+4900111:mayDecay = on
+4900111:tau0 = 0.0
+4900111:oneChannel = 1 1.0 91 1 -1
+
+4900113:mayDecay = on
+4900113:tau0 = 0.0
+4900113:oneChannel = 1 1.0 91 1 -1
+
+! dark QED:
+4900022:mayDecay = off      ! turn off for stable dark photon
